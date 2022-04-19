@@ -1,7 +1,7 @@
 const Jimp = require("jimp");
 const fs = require("fs");
 
-const output_path = "../resourcepacks/oplexz cakes/assets/minecraft/mcpatcher/cit/cakes"
+const output_path = "./output/assets/minecraft/mcpatcher/cit/cakes";
 
 const generateImage = (n) => {
     Jimp.read("cake.png", (err, image) => {

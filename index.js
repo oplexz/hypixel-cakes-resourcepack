@@ -1,10 +1,10 @@
 const jimp = require("jimp");
 const fs = require("fs");
 
-const highres = false;
+const last_year = 300;
 
 const output_path = "./oplexz-cakes/assets/minecraft/mcpatcher/cit/cakes";
-const cake_texture = highres ? "./assets/cake-32x-blank.png" : "./assets/cake-blank.png";
+const cake_texture = "./assets/cake-blank.png";
 
 const getYearPostfix = (year) => {
     const str = year.toString();
@@ -16,7 +16,7 @@ const getYearPostfix = (year) => {
         return postfix;
     }
 
-    switch (year % 10 == 1) {
+    switch (year % 10) {
         case 1:
             postfix = "st";
             break;
@@ -37,18 +37,19 @@ const getYearPostfix = (year) => {
     return postfix;
 };
 
-const generateImage = (n) => {
+const generateImage = (year) => {
+    year = year.toString();
+
     jimp.read(cake_texture, (err, image) => {
         if (err) throw err;
+
         jimp.loadFont("./assets/Minecraft.ttf.fnt", (err, font) => {
             if (err) throw err;
 
-            let w = image.bitmap.width,
-                h = image.bitmap.height;
+            let w = image.bitmap.width;
 
-            let text = n.toString();
-            let textWidth = jimp.measureText(font, text),
-                textHeight = jimp.measureTextHeight(font, text);
+            let textWidth = jimp.measureText(font, year),
+                textHeight = jimp.measureTextHeight(font, year);
 
             image
                 .print(
@@ -56,33 +57,50 @@ const generateImage = (n) => {
                     w / 2 - textWidth / 2,
                     6,
                     {
-                        text: text,
+                        text: year,
                         alignmentX: jimp.HORIZONTAL_ALIGN_CENTER,
                         alignmentY: jimp.VERTICAL_ALIGN_MIDDLE
                     },
                     textWidth,
                     textHeight
                 )
-                .write(`${output_path}/cake_${text}.png`);
+                .write(`${output_path}/cake_${year}.png`);
         });
     });
 };
 
-const generateProperties = (n) => {
+const generateProperties = (year) => {
     let cake = `type=item\nmatchItems=minecraft:cake\nnbt.display.Lore.1=\\u00A77celebration for the %year%`;
-    if (n < 10) cake += " SkyBlock";
-    fs.writeFileSync(`${output_path}/cake_${n}.properties`, cake.replace("%year%", n + getYearPostfix(n)));
+    if (year < 10) cake += " SkyBlock";
+    fs.writeFileSync(`${output_path}/cake_${year}.properties`, cake.replace("%year%", year + getYearPostfix(year)));
 
     // let calendar = `type=item\nitems=minecraft:cake\ntexture=cake_${n}.png\nnbt.display.Lore.*=ipattern:*%year% new year celebration*`;
-    // fs.writeFileSync(`${output_path}/cake_${n}_calendar.properties`, calendar.replace("%year%", yearText(n)));
+    // fs.writeFileSync(`${output_path}/cake_${n}_calendar.properties`, calendar.replace("%year%", year + getYearPostfix(year)));
 
     // let event = `type=item\nitems=minecraft:cake\ntexture=cake_${n}.png\nnbt.display.Name=ipattern:*%year% new year celebration*`;
-    // fs.writeFileSync(`${output_path}/cake_${n}_event.properties`, event.replace("%year%", yearText(n)));
+    // fs.writeFileSync(`${output_path}/cake_${n}_event.properties`, event.replace("%year%", year + getYearPostfix(year)));
 };
+
+function generatePackProperties() {
+    const date = require("moment")().format("MMMM Do, YYYY");
+
+    let mcmeta = {
+        pack: {
+            pack_format: 1,
+            description: `Updated on ${date}\nContact: oplexz#8037`
+        },
+        repo: "https://github.com/oplexz/hypixel-cakes-resourcepack"
+    };
+
+    fs.writeFileSync("./oplexz-cakes/pack.mcmeta", JSON.stringify(mcmeta));
+    fs.copyFileSync("./assets/pack.png", "./oplexz-cakes/pack.png");
+}
 
 if (!fs.existsSync(output_path)) fs.mkdirSync(output_path, { recursive: true });
 
-for (let i = 0; i <= 300; i++) {
+generatePackProperties();
+
+for (let i = 0; i <= last_year; i++) {
     generateImage(i);
     generateProperties(i);
 }

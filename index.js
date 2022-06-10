@@ -6,7 +6,7 @@ const last_year = 300;
 const output_path = "./oplexz-cakes/assets/minecraft/mcpatcher/cit/cakes";
 const cake_texture = "./assets/cake-blank.png";
 
-const getYearPostfix = (year) => {
+function getYearPostfix(year) {
     const str = year.toString();
 
     let postfix;
@@ -35,9 +35,9 @@ const getYearPostfix = (year) => {
     }
 
     return postfix;
-};
+}
 
-const generateImage = (year) => {
+function generateImage(year) {
     year = year.toString();
 
     jimp.read(cake_texture, (err, image) => {
@@ -67,19 +67,18 @@ const generateImage = (year) => {
                 .write(`${output_path}/cake_${year}.png`);
         });
     });
-};
+}
 
-const generateProperties = (year) => {
+function generateProperties(year) {
     let cake = `type=item\nmatchItems=minecraft:cake\nnbt.display.Lore.1=\\u00A77celebration for the %year%`;
     if (year < 10) cake += " SkyBlock";
     fs.writeFileSync(`${output_path}/cake_${year}.properties`, cake.replace("%year%", year + getYearPostfix(year)));
 
     // let calendar = `type=item\nitems=minecraft:cake\ntexture=cake_${n}.png\nnbt.display.Lore.*=ipattern:*%year% new year celebration*`;
     // fs.writeFileSync(`${output_path}/cake_${n}_calendar.properties`, calendar.replace("%year%", year + getYearPostfix(year)));
-
     // let event = `type=item\nitems=minecraft:cake\ntexture=cake_${n}.png\nnbt.display.Name=ipattern:*%year% new year celebration*`;
     // fs.writeFileSync(`${output_path}/cake_${n}_event.properties`, event.replace("%year%", year + getYearPostfix(year)));
-};
+}
 
 function generatePackProperties() {
     const date = require("moment")().format("MMMM Do, YYYY");

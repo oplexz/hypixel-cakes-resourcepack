@@ -1,19 +1,32 @@
 const jimp = require("jimp");
 const fs = require("fs");
 
+const highres = false;
+
 const output_path = "./oplexz-cakes/assets/minecraft/mcpatcher/cit/cakes";
+const cake_texture = highres ? "./assets/cake-32x-blank.png" : "./assets/cake-blank.png";
+
+const yearText = (n) => {
+    str = n.toString();
+    if (str.endsWith("11") || str.endsWith("12") || str.endsWith("13")) return n + "th";
+    else if (n % 10 == 1) return n + "st";
+    else if (n % 10 == 2) return n + "nd";
+    else if (n % 10 == 3) return n + "rd";
+    else return n + "th";
+};
 
 const generateImage = (n) => {
-    jimp.read("cake.png", (err, image) => {
+    jimp.read(cake_texture, (err, image) => {
         if (err) throw err;
-        jimp.loadFont("Minecraft.ttf.fnt", (err, font) => {
+        jimp.loadFont("./assets/Minecraft.ttf.fnt", (err, font) => {
             if (err) throw err;
-            var w = image.bitmap.width;
-            var h = image.bitmap.height;
+
+            let w = image.bitmap.width,
+                h = image.bitmap.height;
 
             let text = n.toString();
-            var textWidth = jimp.measureText(font, text);
-            var textHeight = jimp.measureTextHeight(font, text);
+            let textWidth = jimp.measureText(font, text),
+                textHeight = jimp.measureTextHeight(font, text);
 
             image
                 .print(
@@ -33,15 +46,6 @@ const generateImage = (n) => {
     });
 };
 
-const yearText = (n) => {
-    str = n.toString();
-    if (str.endsWith("11") || str.endsWith("12") || str.endsWith("13")) return n + "th";
-    else if (n % 10 == 1) return n + "st";
-    else if (n % 10 == 2) return n + "nd";
-    else if (n % 10 == 3) return n + "rd";
-    else return n + "th";
-};
-
 const generateProperties = (n) => {
     let cake = `type=item\nmatchItems=minecraft:cake\nnbt.display.Lore.1=\\u00A77celebration for the %year%`;
     if (n < 10) cake += " SkyBlock";
@@ -53,6 +57,8 @@ const generateProperties = (n) => {
     // let event = `type=item\nitems=minecraft:cake\ntexture=cake_${n}.png\nnbt.display.Name=ipattern:*%year% new year celebration*`;
     // fs.writeFileSync(`${output_path}/cake_${n}_event.properties`, event.replace("%year%", yearText(n)));
 };
+
+if (!fs.existsSync(output_path)) fs.mkdirSync(output_path, { recursive: true });
 
 for (let i = 0; i <= 300; i++) {
     generateImage(i);
